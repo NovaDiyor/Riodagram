@@ -298,16 +298,26 @@ def get_user_username(request, pk):
         if request.method == 'GET':
             user = User.objects.get(username=pk)
             following = Follow.objects.get(user=user)
+            post = Alp.objects.get(user=user)
+            if user.img:
+                img = user.img.url
+            else:
+                img = None
+            if post.post.count() > 0:
+                post = PostOne(post, many=True).data
+            else:
+                post = None
             data = {
                 'username': user.username,
                 'name': user.first_name,
                 'surname': user.last_name,
                 'bio': user.bio,
-                'img': user.img.url,
+                'img': img,
                 'following': user.following,
                 'followers': UserVisible(following.follower, many=True).data,
                 'publications': user.publications,
-                'site': user.site
+                'site': user.site,
+                'post': post
             }
             return Response(data)
         else:
