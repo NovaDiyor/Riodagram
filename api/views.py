@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.contrib.auth import authenticate
 from django.http import HttpResponse
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication
@@ -440,6 +442,29 @@ def get_post(request, pk):
     except Exception as err:
         return Response(f'error: {err}')
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+def get_post_follow(request):
+    try:
+        if request.method == 'GET':
+            user = request.user
+            follow = []
+            post = []
+            day = date.today()
+            for i in Follow.objects.all():
+                for x in i.follower.all():
+                    if x == user:
+                        follow.append(i.user)
+            for i in follow:
+                new = Posts.objects.get(author=i, day__day=day.day)
+                post.append(new)
+            return Response(PostOne(post, many=True).data)
+        else:
+            return Response('wrong method')
+    except Exception as err:
+        return Response(f'error: {err}')
 
 # django
 

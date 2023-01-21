@@ -13,6 +13,7 @@ urlpatterns = [
     path('<str:pk>/', get_user_username),
     path('create/post/', create_post),
     path('get/post/<int:pk>/', get_post),
+    path('follow/post/', get_post_follow),
     path('create/stories/', create_stories),
     path('delete/post/<int:pk>/', delete_post),
     path('delete/stories/<int:pk>/', delete_stories),
