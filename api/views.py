@@ -12,24 +12,6 @@ from rest_framework.response import Response
 
 
 @api_view(['POST'])
-@authentication_classes([TokenAuthentication])
-def register(request):
-    try:
-        username = request.data['username']
-        password = request.data['password']
-        users = User.objects.create_user(username=username, password=password)
-        token = Token.objects.create(user=users)
-        data = {
-            'username': username,
-            'user_id': users.id,
-            'token': token.key,
-        }
-        return Response(data)
-    except Exception as err:
-        return Response({'error': f'{err}'})
-
-
-@api_view(['POST'])
 def login_view(request):
     try:
         username = request.data['username']
@@ -65,34 +47,47 @@ def login_view(request):
         return Response({"error": f'{er}'})
 
 
-# @api_view(['POST'])
-# def register(request):
-#     try:
-#         if request.method == 'POST':
-#             username = request.POST['username']
-#             name = request.POST['name']
-#             surname = request.POST['surname']
-#             email = request.POST['email']
-#             password = request.POST['password']
-#             if len(password) >= 6:
-#                 usr = User.objects.create_user(username=username, first_name=name, last_name=surname, email=email,
-#                                                password=password, status=2)
-#                 LikedPost.objects.create(user=usr)
-#                 Alp.objects.create(user=usr)
-#                 data = {
-#                     'username': username,
-#                     'name': name,
-#                     'surname': surname,
-#                     'email': email,
-#                     'user_id': usr.id,
-#                 }
-#                 return Response(data)
-#             else:
-#                 return Response('Password have to consist of 6 letter')
-#         else:
-#             return Response('wrong method')
-#     except Exception as err:
-#         return Response({"error": f'{err}'})
+@api_view(['POST'])
+def register(request):
+    try:
+        if request.method == 'POST':
+            username = request.POST['username']
+            name = request.POST['name']
+            surname = request.POST['surname']
+            email = request.POST['email']
+            password = request.POST['password']
+            if email[-10:] == '@gmail.com':
+                if len(email) >= 11:
+                    if len(password) >= 6:
+                        usr = User.objects.create_user(
+                            username=username,
+                            first_name=name,
+                            last_name=surname,
+                            email=email,
+                            password=password,
+                            status=2)
+                        token = Token.objects.create(user=users)
+                        LikedPost.objects.create(user=usr)
+                        Alp.objects.create(user=usr)
+                        data = {
+                            'username': username,
+                            'name': name,
+                            'surname': surname,
+                            'email': email,
+                            'user_id': usr.id,
+                            'token': token.key
+                        }
+                        return Response(data)
+                    else:
+                        return Response('Password have to consist of 6 letter')
+                else:
+                    return Response('Email have to consist something except @gmail.com')
+            else:
+                return Response('Wrong email, email have to end with @gmail.com')
+        else:
+            return Response('wrong method')
+    except Exception as err:
+        return Response({"error": f'{err}'})
 
 
 @api_view(['DELETE'])
@@ -423,8 +418,6 @@ def get_liked(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
-@authentication_classes([TokenAuthentication])
 def get_post(request, pk):
     try:
         if request.method == 'GET':
@@ -454,8 +447,6 @@ def get_post(request, pk):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
-@authentication_classes([TokenAuthentication])
 def get_post_follow(request):
     try:
         if request.method == 'GET':
