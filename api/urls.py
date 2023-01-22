@@ -5,7 +5,7 @@ urlpatterns = [
     path('register/', register),
     path('login/', login_view),
     path('logout/', logout),
-    path('give/follow/', give_follow),
+    path('follow/', give_follow),
     path('give/like/', give_like),
     path('unfollow/', unfollow),
     path('leave/comment/', leave_comment),
