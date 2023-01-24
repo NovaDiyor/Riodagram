@@ -7,5 +7,4 @@ from api.views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
-    path('', ho)
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

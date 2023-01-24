@@ -1,8 +1,6 @@
 from datetime import date
-
+from rest_framework import status
 from django.contrib.auth import authenticate
-from django.http import HttpResponse
-from rest_framework.authentication import BasicAuthentication, SessionAuthentication
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from .serializer import *
@@ -20,31 +18,26 @@ def login_view(request):
             usr = User.objects.get(username=username)
             user = authenticate(username=username, password=password)
             if user is not None:
-                status = 200
                 token, created = Token.objects.get_or_create(user=user)
                 data = {
-                    'status': status,
                     'username': username,
                     'user_id': usr.id,
                     'token': token.key,
                 }
+                return Response(data, status.HTTP_200_OK)
             else:
-                status = 403
                 message = 'Username or Password is wrong!'
                 data = {
-                    'status': status,
                     'message': message,
                 }
+                return Response(data, status.HTTP_403_FORBIDDEN)
         except User.DoesNotExist:
-            status = 404
-            message = 'User doesnt exist!'
-            data = {
-                'status': status,
-                'message': message,
+            message = {
+                'message': 'This User Doesnt Exist'
             }
-        return Response(data)
-    except Exception as er:
-        return Response({"error": f'{er}'})
+            return Response(message, status.HTTP_404_NOT_FOUND)
+    except Exception as err:
+        return Response({"error": f'{err}'})
 
 
 @api_view(['POST'])
@@ -66,7 +59,7 @@ def register(request):
                             email=email,
                             password=password,
                             status=2)
-                        token = Token.objects.create(user=users)
+                        token = Token.objects.create(user=usr)
                         LikedPost.objects.create(user=usr)
                         Alp.objects.create(user=usr)
                         data = {
@@ -467,8 +460,41 @@ def get_post_follow(request):
     except Exception as err:
         return Response(f'error: {err}')
 
-# django
 
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+def change_profile(request):
+    try:
+        if request.method == 'PATCH':
+            user = request.user
+            username = request.POST.get('username')
+            name = request.POST.get('name')
+            surname = request.POST.get('surname')
+            img = request.POST.get('image')
+            bio = request.POST.get('bio')
+            site = request.POST.get('site')
+            email = request.POST.get('email')
+            number = request.POST.get('number')
+            if username:
+                user.username = username
+            if name:
+                user.first_name = name
+            if surname:
+                user.last_name = surname
+            if img:
+                user.img = img
+            if bio:
+                user.bio = bio
+            if site:
+                user.site = site
+            if email:
+                user.email = email
+            if number:
+                user.number = number
+            user.save()
+            return Response('Successful', status.HTTP_200_OK)
+        return Response('wrong method', status.HTTP_405_METHOD_NOT_ALLOWED)
+    except Exception as err:
+        return Response(f'error: {err}', status.HTTP_204_NO_CONTENT)
 
-def ho(request):
-    return HttpResponse('')

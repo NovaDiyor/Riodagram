@@ -12,6 +12,7 @@ urlpatterns = [
     path('get/liked/', get_liked),
     path('<str:pk>/', get_user_username),
     path('post/', create_post),
+    path('change/profile/', change_profile),
     path('get/post/<int:pk>/', get_post),
     path('follow/post/', get_post_follow),
     path('create/stories/', create_stories),
