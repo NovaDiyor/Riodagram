@@ -1,6 +1,6 @@
 from datetime import date
 from rest_framework import status
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, logout
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from .serializer import *
@@ -70,27 +70,28 @@ def register(request):
                             'user_id': usr.id,
                             'token': token.key
                         }
-                        return Response(data)
+                        return Response(data, status.HTTP_200_OK)
                     else:
-                        return Response('Password have to consist of 6 letter')
+                        return Response('Password have to consist of 6 letter', status.HTTP_403_FORBIDDEN)
                 else:
-                    return Response('Email have to consist something except @gmail.com')
+                    return Response('Email have to consist something except @gmail.com', status.HTTP_401_UNAUTHORIZED)
             else:
-                return Response('Wrong email, email have to end with @gmail.com')
+                return Response('Wrong email, email have to end with @gmail.com', status.HTTP_401_UNAUTHORIZED)
         else:
-            return Response('wrong method')
+            return Response('wrong method', status.HTTP_405_METHOD_NOT_ALLOWED)
     except Exception as err:
-        return Response({"error": f'{err}'})
+        return Response({"error": f'{err}'}, status.HTTP_417_EXPECTATION_FAILED)
 
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
-def logout(request):
+def logout_view(request):
     try:
         if request.method == 'DELETE':
             user = request.user
             user.delete()
+            logout(request)
             return Response('You logout')
     except Exception as err:
         return Response(f'error: {err}')
