@@ -49,34 +49,28 @@ def register(request):
             surname = request.POST['surname']
             email = request.POST['email']
             password = request.POST['password']
-            if email[-10:] == '@gmail.com':
-                if len(email) >= 11:
-                    if len(password) >= 6:
-                        usr = User.objects.create_user(
-                            username=username,
-                            first_name=name,
-                            last_name=surname,
-                            email=email,
-                            password=password,
-                            status=2)
-                        token = Token.objects.create(user=usr)
-                        LikedPost.objects.create(user=usr)
-                        Alp.objects.create(user=usr)
-                        data = {
-                            'username': username,
-                            'name': name,
-                            'surname': surname,
-                            'email': email,
-                            'user_id': usr.id,
-                            'token': token.key
-                        }
-                        return Response(data, status.HTTP_200_OK)
-                    else:
-                        return Response('Password have to consist of 6 letter', status.HTTP_403_FORBIDDEN)
-                else:
-                    return Response('Email have to consist something except @gmail.com', status.HTTP_401_UNAUTHORIZED)
+            if len(password) >= 6:
+                usr = User.objects.create_user(
+                    username=username,
+                    first_name=name,
+                    last_name=surname,
+                    email=email,
+                    password=password,
+                    status=2)
+                token = Token.objects.create(user=usr)
+                LikedPost.objects.create(user=usr)
+                Alp.objects.create(user=usr)
+                data = {
+                    'username': username,
+                    'name': name,
+                    'surname': surname,
+                    'email': email,
+                    'user_id': usr.id,
+                    'token': token.key
+                }
+                return Response(data, status.HTTP_200_OK)
             else:
-                return Response('Wrong email, email have to end with @gmail.com', status.HTTP_401_UNAUTHORIZED)
+                return Response('Password have to consist of 6 letter', status.HTTP_403_FORBIDDEN)
         else:
             return Response('wrong method', status.HTTP_405_METHOD_NOT_ALLOWED)
     except Exception as err:
